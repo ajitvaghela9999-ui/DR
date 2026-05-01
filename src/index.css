@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Hospital Theme Colors */
+  --color-hospital-green-50: #f1f8f4;
+  --color-hospital-green-100: #e3f1e9;
+  --color-hospital-green-200: #c7e3d2;
+  --color-hospital-green-300: #9bc8ae;
+  --color-hospital-green-400: #6ca788;
+  --color-hospital-green-500: #4a8b6c;
+  --color-hospital-green-600: #3a6f56;
+  --color-hospital-green-700: #305946;
+  --color-hospital-green-800: #28483a;
+  --color-hospital-green-900: #223c31;
+  --color-hospital-green-950: #12221b;
+
+  --color-off-white: #fafafa;
+  --color-off-white-dark: #f5f5f5;
+
+  /* Overriding Cyan (used in App.tsx) */
+  --color-cyan-50: var(--color-hospital-green-50);
+  --color-cyan-100: var(--color-hospital-green-100);
+  --color-cyan-200: var(--color-hospital-green-200);
+  --color-cyan-300: var(--color-hospital-green-300);
+  --color-cyan-400: var(--color-hospital-green-400);
+  --color-cyan-500: var(--color-hospital-green-500);
+  --color-cyan-600: var(--color-hospital-green-600);
+  --color-cyan-700: var(--color-hospital-green-700);
+  --color-cyan-800: var(--color-hospital-green-800);
+  --color-cyan-900: var(--color-hospital-green-900);
+  --color-cyan-950: var(--color-hospital-green-950);
+
+  /* Overriding Blue (used in Auth.tsx) */
+  --color-blue-50: var(--color-hospital-green-50);
+  --color-blue-100: var(--color-hospital-green-100);
+  --color-blue-200: var(--color-hospital-green-200);
+  --color-blue-300: var(--color-hospital-green-300);
+  --color-blue-400: var(--color-hospital-green-400);
+  --color-blue-500: var(--color-hospital-green-500);
+  --color-blue-600: var(--color-hospital-green-600);
+  --color-blue-700: var(--color-hospital-green-700);
+  --color-blue-800: var(--color-hospital-green-800);
+  --color-blue-900: var(--color-hospital-green-900);
+  --color-blue-950: var(--color-hospital-green-950);
+
+  /* Overriding Indigo (used for IoT/AI) */
+  --color-indigo-50: var(--color-emerald-50);
+  --color-indigo-100: var(--color-emerald-100);
+  --color-indigo-200: var(--color-emerald-200);
+  --color-indigo-300: var(--color-emerald-300);
+  --color-indigo-400: var(--color-emerald-400);
+  --color-indigo-500: var(--color-emerald-500);
+  --color-indigo-600: var(--color-emerald-600);
+  --color-indigo-700: var(--color-emerald-700);
+  --color-indigo-800: var(--color-emerald-800);
+  --color-indigo-900: var(--color-emerald-900);
+  --color-indigo-950: var(--color-emerald-950);
+
+  /* Overriding Slate for Backgrounds */
+  --color-slate-50: var(--color-off-white);
+  --color-slate-100: var(--color-off-white-dark);
+}
+
