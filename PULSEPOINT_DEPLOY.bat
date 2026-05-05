@@ -5,7 +5,7 @@ echo [PulsePoint AI] Starting Full Deployment...
 echo.
 
 :: 1. Configuration
-set REPO_URL=https://github.com/ajitvaghela9999-ui/pulsepoint-hospital-twin.git
+set REPO_URL=https://github.com/ajitvaghela9999-ui/DR.git
 
 :: 2. Update GitHub Remote
 echo [1/3] Updating GitHub Remote...
