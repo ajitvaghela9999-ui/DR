@@ -57,8 +57,10 @@ const broadcast = (event: ServerEvent) => {
   }
 };
 
-// API Routes
-app.get("/api/state", async (req, res) => {
+// API Router
+const apiRouter = express.Router();
+
+apiRouter.get("/state", async (req, res) => {
   try {
     const state = await getHospitalState();
     res.json(state);
@@ -67,7 +69,7 @@ app.get("/api/state", async (req, res) => {
   }
 });
 
-app.post("/api/auth/signup", async (req, res) => {
+apiRouter.post("/auth/signup", async (req, res) => {
   try {
     const { email, password, name, role } = req.body;
     const existingUser = await findUserByEmail(email);
@@ -94,7 +96,7 @@ app.post("/api/auth/signup", async (req, res) => {
   }
 });
 
-app.post("/api/auth/login", async (req, res) => {
+apiRouter.post("/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
@@ -110,7 +112,7 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-app.post("/api/simulate/admission", async (req, res) => {
+apiRouter.post("/simulate/admission", async (req, res) => {
   try {
     const { patient, bedId } = req.body;
     const state = await getHospitalState();
@@ -144,7 +146,7 @@ app.post("/api/simulate/admission", async (req, res) => {
   }
 });
 
-app.post("/api/simulate/discharge", async (req, res) => {
+apiRouter.post("/simulate/discharge", async (req, res) => {
   try {
     const { bedId } = req.body;
     const state = await getHospitalState();
@@ -161,7 +163,7 @@ app.post("/api/simulate/discharge", async (req, res) => {
   }
 });
 
-app.post("/api/simulate/complete-task", async (req, res) => {
+apiRouter.post("/simulate/complete-task", async (req, res) => {
   try {
     const { bedId } = req.body;
     const state = await getHospitalState();
@@ -178,7 +180,7 @@ app.post("/api/simulate/complete-task", async (req, res) => {
   }
 });
 
-app.post("/api/doctors", async (req, res) => {
+apiRouter.post("/doctors", async (req, res) => {
   try {
     const doctor = req.body;
     await addDoctor(doctor);
@@ -190,7 +192,7 @@ app.post("/api/doctors", async (req, res) => {
   }
 });
 
-app.put("/api/doctors/:id", async (req, res) => {
+apiRouter.put("/doctors/:id", async (req, res) => {
   try {
     const doctor = req.body;
     await updateDoctor(doctor);
@@ -202,7 +204,7 @@ app.put("/api/doctors/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/doctors/:id", async (req, res) => {
+apiRouter.delete("/doctors/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await deleteDoctor(id);
@@ -215,7 +217,7 @@ app.delete("/api/doctors/:id", async (req, res) => {
   }
 });
 
-app.post("/api/appointments", async (req, res) => {
+apiRouter.post("/appointments", async (req, res) => {
   try {
     const appointment = req.body;
     await addAppointment(appointment);
@@ -246,7 +248,7 @@ app.post("/api/appointments", async (req, res) => {
   }
 });
 
-app.post("/api/messages", async (req, res) => {
+apiRouter.post("/messages", async (req, res) => {
   try {
     const message = req.body;
     await addMessage(message);
@@ -257,14 +259,14 @@ app.post("/api/messages", async (req, res) => {
   }
 });
 
-app.post("/api/ai/diagnose", async (req, res) => {
+apiRouter.post("/ai/diagnose", async (req, res) => {
   try {
     const { symptoms, history, patientData } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "Gemini API key is not configured." });
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-    const prompt = `You are a highly advanced Medical AI Diagnostic Assistant named "PulsePoint AI". ... (truncated for brevity)`;
+    const prompt = `You are a highly advanced Medical AI Diagnostic Assistant named "PulsePoint AI". ... (truncated)`;
     const result = await model.generateContent(prompt);
     const response = await result.response;
     res.json({ success: true, diagnosis: response.text() });
@@ -272,6 +274,10 @@ app.post("/api/ai/diagnose", async (req, res) => {
     res.status(500).json({ error: "AI failed to process the diagnostic request." });
   }
 });
+
+// Mount the API Router at both /api and root for maximum compatibility
+app.use("/api", apiRouter);
+app.use("/", apiRouter);
 
 // Simulation loop (local only)
 if (process.env.VERCEL !== "1") {
