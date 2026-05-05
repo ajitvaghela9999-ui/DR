@@ -719,60 +719,86 @@ export default function App() {
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
+    // Initial state fetch via HTTP (Fallback for environments without WebSocket support like Vercel)
+    const fetchInitialState = async () => {
+      try {
+        const response = await fetch('/api/state');
+        if (response.ok) {
+          const data = await response.json();
+          setState(data);
+          if (!currentDoctorId && data.doctors.length > 0) {
+            setCurrentDoctorId(data.doctors[0].id);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch initial state via HTTP:', err);
+      }
+    };
+
+    fetchInitialState();
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = new WebSocket(`${protocol}//${window.location.host}`);
 
     socket.onmessage = (event) => {
-      const data: ServerEvent = JSON.parse(event.data);
+      try {
+        const data: ServerEvent = JSON.parse(event.data);
 
-      switch (data.type) {
-        case 'INITIAL_STATE':
-          setState(data.payload);
-          if (!currentDoctorId && data.payload.doctors.length > 0) {
-            setCurrentDoctorId(data.payload.doctors[0].id);
-          }
-          break;
-        case 'BED_UPDATE':
-          setState((prev: { beds: any[]; }) => prev ? ({
-            ...prev,
-            beds: prev.beds.map((b: { id: string; }) => b.id === data.payload.id ? data.payload : b)
-          }) : null);
-          break;
-        case 'PATIENT_UPDATE':
-          setState((prev: { patients: any[]; }) => prev ? ({
-            ...prev,
-            patients: [...prev.patients.filter((p: { id: string; }) => p.id !== data.payload.id), data.payload]
-          }) : null);
-          break;
-        case 'DOCTOR_UPDATE':
-          setState((prev: { doctors: any[]; }) => prev ? ({
-            ...prev,
-            doctors: prev.doctors.map((d: { id: string; }) => d.id === data.payload.id ? data.payload : d)
-          }) : null);
-          break;
-        case 'APPOINTMENT_UPDATE':
-          setState((prev: { appointments: any[]; }) => prev ? ({
-            ...prev,
-            appointments: [...prev.appointments.filter((a: { id: string; }) => a.id !== data.payload.id), data.payload]
-          }) : null);
-          break;
-        case 'MESSAGE_UPDATE':
-          setState((prev: { messages: any; }) => prev ? ({
-            ...prev,
-            messages: [...(prev.messages || []).filter((m: { id: string; }) => m.id !== data.payload.id), data.payload]
-          }) : null);
-          break;
-        case 'ALERT':
-          if (pushNotificationsEnabled) {
-            setAlerts((prev: any) => [{ ...data.payload, id: Date.now() }, ...prev].slice(0, 5));
-          }
-          break;
+        switch (data.type) {
+          case 'INITIAL_STATE':
+            setState(data.payload);
+            if (!currentDoctorId && data.payload.doctors.length > 0) {
+              setCurrentDoctorId(data.payload.doctors[0].id);
+            }
+            break;
+          case 'BED_UPDATE':
+            setState((prev: any) => prev ? ({
+              ...prev,
+              beds: prev.beds.map((b: any) => b.id === data.payload.id ? data.payload : b)
+            }) : null);
+            break;
+          case 'PATIENT_UPDATE':
+            setState((prev: any) => prev ? ({
+              ...prev,
+              patients: [...prev.patients.filter((p: any) => p.id !== data.payload.id), data.payload]
+            }) : null);
+            break;
+          case 'DOCTOR_UPDATE':
+            setState((prev: any) => prev ? ({
+              ...prev,
+              doctors: prev.doctors.map((d: any) => d.id === data.payload.id ? data.payload : d)
+            }) : null);
+            break;
+          case 'APPOINTMENT_UPDATE':
+            setState((prev: any) => prev ? ({
+              ...prev,
+              appointments: [...prev.appointments.filter((a: any) => a.id !== data.payload.id), data.payload]
+            }) : null);
+            break;
+          case 'MESSAGE_UPDATE':
+            setState((prev: any) => prev ? ({
+              ...prev,
+              messages: [...(prev.messages || []).filter((m: any) => m.id !== data.payload.id), data.payload]
+            }) : null);
+            break;
+          case 'ALERT':
+            if (pushNotificationsEnabled) {
+              setAlerts((prev: any) => [{ ...data.payload, id: Date.now() }, ...prev].slice(0, 5));
+            }
+            break;
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
       }
+    };
+
+    socket.onerror = (err) => {
+      console.warn('WebSocket connection error. Real-time updates may be disabled.', err);
     };
 
     ws.current = socket;
     return () => socket.close();
-  }, []);
+  }, [currentDoctorId, pushNotificationsEnabled]);
 
   if (!currentUser) {
     return <Auth onLogin={handleLogin} />;

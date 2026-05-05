@@ -1,16 +1,21 @@
 import mongoose from 'mongoose';
-import { HospitalState } from './types.ts';
+import { HospitalState } from './types';
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/hospital')
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hospital';
+
+mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
     seedDatabase().catch(console.error);
   })
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err.message);
-    console.error('❗ TIP: Ensure MongoDB service is running on your machine (Services.msc -> MongoDB).');
-    process.exit(1);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('❗ ERROR: MONGODB_URI environment variable is likely missing or incorrect on Vercel.');
+    } else {
+      console.error('❗ TIP: Ensure MongoDB service is running on your machine (Services.msc -> MongoDB).');
+    }
   });
 
 // Define Schemas
